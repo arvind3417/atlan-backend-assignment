@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// prisma/schema.prisma
+model Form {
+  formID      Int        @id @default(autoincrement())
+  title       String
+  description String
+  metadata    String
+  questions   Question[]
+  responses   Response[] // Add this line
+}
+
+model Question {
+  questionID Int      @id @default(autoincrement())
+  text       String
+  type       String
+  metadata   String
+  form       Form     @relation(fields: [formID], references: [formID])
+  formID     Int
+  answers    Answer[]
+}
+
+model Answer {
+  answerID   Int      @id @default(autoincrement())
+  value      String
+  metadata   String
+  response   Response @relation(fields: [responseID], references: [responseID])
+  responseID Int
+  question   Question @relation(fields: [questionID], references: [questionID])
+  questionID Int
+}
+
+model Response {
+  responseID Int      @id @default(autoincrement())
+  timestamp  DateTime
+  metadata   String
+  form       Form     @relation(fields: [formID], references: [formID])
+  formID     Int
+  answers    Answer[]
+}
