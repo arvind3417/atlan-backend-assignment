@@ -1,0 +1,72 @@
+version: '3'
+services:
+  main-app:
+    build: ./main
+    ports:
+      - "3000:3000"
+    depends_on:
+      - google
+    networks:
+      - atlan
+
+  google:
+    build: ./google
+    ports:
+      - "3002:3002"
+    networks:
+      - atlan
+
+  redis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    networks:
+      - atlan
+
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    restart: always
+    ports:
+      - '5434:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: atlan
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d/
+    networks:
+      - atlan
+
+  response-handler:
+    build: ./response-handler
+    ports:
+      - "4000:4000"
+    depends_on:
+      - logging-handler
+      - email-handler
+    networks:
+      - atlan
+
+  logging-handler:
+    build: ./logger-micro
+    ports:
+      - "4001:4001"
+    networks:
+      - atlan
+
+  email-handler:
+    build: ./email-micro
+    ports:
+      - "4002:4002"
+    networks:
+      - atlan
+
+networks:
+  atlan:
+
+volumes:
+  postgres:
+    name: atlan
+
