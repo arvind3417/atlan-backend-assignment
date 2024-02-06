@@ -20,3 +20,5 @@ db/data
 .env
 .env.test
 /google/src/constants.ts
+main/.env
+/google/.env
