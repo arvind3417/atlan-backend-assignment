@@ -1,11 +1,17 @@
 // src/responses/responses.service.ts
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Answer, Prisma, Response } from '@prisma/client';
+import { InjectQueue } from '@nestjs/bull';
+import { ClientProxy } from '@nestjs/microservices';
+import { Queue } from 'bull';
 
 @Injectable()
 export class ResponsesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService,
+    @InjectQueue('q1') private readonly q : Queue,
+    @Inject('RESPONSE_SERVICE') private readonly responseHandler : ClientProxy
+    ) {}
 
   async createResponseWithAnswers(requestData: { formID: number; timestamp: Date; metadata: string; answers: Answer[] }): Promise<Response> {
     const { formID, timestamp, metadata, answers } = requestData;
@@ -27,6 +33,19 @@ export class ResponsesService {
           },
         });
       });
+
+      if(createdResponse){
+        this.q.add('form',requestData, {
+          backoff:{
+            type:'exponential',
+            delay:1000
+          }, attempts: 5
+         });
+
+         this.responseHandler.emit('handle-response', createdResponse).toPromise()
+      }
+ 
+  
     } catch (error) {
       // Handle the error appropriately
       console.error('Error during transaction:', error);

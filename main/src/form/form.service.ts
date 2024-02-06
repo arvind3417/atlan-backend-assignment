@@ -1,13 +1,22 @@
 // src/prisma/prisma.service.ts
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { Prisma, Form } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { InjectQueue } from "@nestjs/bull";
+import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
+import { Prisma, Form } from "@prisma/client";
+import { Queue } from "bull";
+import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
 export class FormService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectQueue("q1") private readonly q: Queue
+  ) {}
 
-  async createForm(data: { title: string; description: string; metadata: string }): Promise<Form> {
+  async createForm(data: {
+    title: string;
+    description: string;
+    metadata: string;
+  }): Promise<Form> {
     let createdForm: Form;
 
     try {
@@ -18,14 +27,20 @@ export class FormService {
       });
     } catch (error) {
       // Handle the error appropriately
-      console.error('Error during transaction:', error);
-      throw new HttpException('Failed to create form', HttpStatus.INTERNAL_SERVER_ERROR);
+      console.error("Error during transaction:", error);
+      throw new HttpException(
+        "Failed to create form",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
 
     return createdForm;
   }
 
-  async updateForm(id: number, data: { title?: string; description?: string; metadata?: string }): Promise<Form> {
+  async updateForm(
+    id: number,
+    data: { title?: string; description?: string; metadata?: string }
+  ): Promise<Form> {
     let updatedForm: Form;
 
     try {
@@ -36,8 +51,11 @@ export class FormService {
       });
     } catch (error) {
       // Handle the error appropriately
-      console.error('Error during transaction:', error);
-      throw new HttpException('Failed to update form', HttpStatus.INTERNAL_SERVER_ERROR);
+      console.error("Error during transaction:", error);
+      throw new HttpException(
+        "Failed to update form",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
 
     return updatedForm;
@@ -56,12 +74,24 @@ export class FormService {
       // Use a transaction to ensure atomicity
       await this.prisma.$transaction(async (prisma) => {
         // Delete the form within the transaction
-        await prisma.form.delete({ where: { formID: id } });
+        const deleted = await prisma.form.delete({ where: { formID: id } });
+        if (deleted) {
+          this.q.add("form-delete", id, {
+            backoff: {
+              type: "exponential",
+              delay: 1000,
+            },
+            attempts: 5,
+          });
+        }
       });
     } catch (error) {
       // Handle the error appropriately
-      console.error('Error during transaction:', error);
-      throw new HttpException('Failed to delete form', HttpStatus.INTERNAL_SERVER_ERROR);
+      console.error("Error during transaction:", error);
+      throw new HttpException(
+        "Failed to delete form",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 }

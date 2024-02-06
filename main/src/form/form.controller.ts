@@ -1,14 +1,25 @@
 // src/forms/forms.controller.ts
-import { Controller, Get, Post, Put, Delete, Param, Body, NotFoundException } from '@nestjs/common';
-import { Form } from '@prisma/client';
-import { FormService } from './form.service';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  NotFoundException,
+} from "@nestjs/common";
+import { Form } from "@prisma/client";
+import { FormService } from "./form.service";
 
-@Controller('forms')
+@Controller("forms")
 export class FormsController {
   constructor(private readonly prismaService: FormService) {}
 
   @Post()
-  async createForm(@Body() formData: { title: string; description: string; metadata: string }): Promise<Form> {
+  async createForm(
+    @Body() formData: { title: string; description: string; metadata: string }
+  ): Promise<Form> {
     return this.prismaService.createForm(formData);
   }
 
@@ -17,8 +28,8 @@ export class FormsController {
     return this.prismaService.getAllForms();
   }
 
-  @Get(':id')
-  async getFormById(@Param('id') id: string): Promise<Form> {
+  @Get(":id")
+  async getFormById(@Param("id") id: string): Promise<Form> {
     const form = await this.prismaService.getFormById(parseInt(id, 10));
     if (!form) {
       throw new NotFoundException(`Form with ID ${id} not found`);
@@ -26,13 +37,17 @@ export class FormsController {
     return form;
   }
 
-  @Put(':id')
-  async updateForm(@Param('id') id: string, @Body() formData: { title?: string; description?: string; metadata?: string }): Promise<Form> {
+  @Put(":id")
+  async updateForm(
+    @Param("id") id: string,
+    @Body()
+    formData: { title?: string; description?: string; metadata?: string }
+  ): Promise<Form> {
     return this.prismaService.updateForm(parseInt(id, 10), formData);
   }
 
-  @Delete(':id')
-  async deleteForm(@Param('id') id: string): Promise<void> {
+  @Delete(":id")
+  async deleteForm(@Param("id") id: string): Promise<void> {
     return await this.prismaService.deleteForm(parseInt(id, 10));
   }
 }
