@@ -28,7 +28,7 @@
 
 1. **Clone the Repository**
    ```bash
-   git clone [repository_url]
+   git clone https://github.com/arvind3417/atlan-backend-assignment.git
    ```
 
 2. **Navigate to the Project Directory**
