@@ -1,3 +1,17 @@
+
+
+# Data Sync Platform - Open for Extension Closed for Modification
+
+## Tech Stack
+
+- **Framework:** Nest.js
+- **Database:** PostgreSQL
+- **ORM:** Prisma
+- **Containerization:** Docker
+- **Language:** TypeScript
+- **Job Queue:** Bull
+- **Health Checks:** Terminus
+
 ## Key Features
 
 1. **Efficient Response Management:** Ingests and processes user responses from forms with ease.
@@ -6,25 +20,15 @@
 4. **Scalable Architecture:** Dynamically scales to handle increased workload with distributed queues and load balancing.
 5. **Plug-n-Play Extension:** Implemented an interface for new use cases to be plugged in, allowing for the customization of response processing based on specific business logic.
 
-
 ### Architecture
 
-1. Implemented Design
+1. **Implemented Design**
 ![Atlan](https://github.com/arvind3417/atlan-backend-assignment/assets/91880276/b9f81d25-981c-442e-93d8-45bbc52e06c5)
 
-2. Desired Design
+2. **Desired Design**
 ![Desired-Design](https://github.com/arvind3417/atlan-backend-assignment/assets/91880276/ad7bac4e-0e7d-458d-915e-f228764ebe14)
 
-
-
-
-
-
-
-
-
-
-### Getting Started
+## Getting Started
 
 1. **Clone the Repository**
    ```bash
@@ -48,7 +52,7 @@
    docker-compose up -d
    ```
 
-### Models and Associations
+## Models and Associations
 
 1. **Form**
    - **Attributes**:
@@ -84,11 +88,7 @@
      - `form` (Form object): Form to which the response belongs.
      - `answers` (array of Answer objects): Answers associated with the response.
 
-
-
-
-
-# API Documentation
+## API Documentation
 
 This document provides an overview of the endpoints available in our API.
 
@@ -170,7 +170,9 @@ This document provides an overview of the endpoints available in our API.
 
 - **Create a Response with Answers**
   - Method: `POST`
-  - Route: `/responses`
+ 
+
+ - Route: `/responses`
 
 - **Get Responses by Form ID**
   - Method: `GET`
@@ -189,5 +191,3 @@ This document provides an overview of the endpoints available in our API.
   - Route: `/responses/:formId/:responseId`
 
 ---
-
-
