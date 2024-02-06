@@ -86,9 +86,7 @@
 
 
 
-Certainly! Below is a template for your README documentation:
 
----
 
 # API Documentation
 
